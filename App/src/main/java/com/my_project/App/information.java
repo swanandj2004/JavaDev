@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.HashMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 
@@ -47,5 +48,10 @@ public class information {
     @GetMapping("/get/course/{course}")
     public student studentCourse(@PathVariable String course) {
         return map_course.get(course);
+    }
+    @PutMapping("update/{id}")
+    public student updateDId(@PathVariable Long id, @RequestBody student s) {
+        //TODO: process PUT request
+        return map_id.put(id,s);
     }
 }
