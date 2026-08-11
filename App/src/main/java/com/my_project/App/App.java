@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @SpringBootApplication
 @RestController
 @RequestMapping("/student")
@@ -44,6 +45,17 @@ public class App {
     @PostMapping
     public Student addStudent(@RequestBody Student student) {
         return studentRepository.save(student);
+    }
+
+    @PutMapping("/update/{id}")
+    public Student updateStudent(@PathVariable Long id,@RequestBody Student student) {
+        Student existingStudent = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        existingStudent.setName(student.getName());
+        existingStudent.setEmail(student.getEmail());
+
+        return studentRepository.save(existingStudent);
     }
 
     // Delete student
