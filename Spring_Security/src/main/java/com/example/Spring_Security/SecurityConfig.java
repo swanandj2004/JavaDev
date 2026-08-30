@@ -22,15 +22,9 @@ public class SecurityConfig {
             throws Exception {
 
         http
-            .csrf(csrf->csrf.disable())
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/user/register").permitAll()
-                .requestMatchers("/get/page").authenticated()
-                .anyRequest().authenticated()
-            )
-            .formLogin(form->form 
-                .usernameParameter("email")
-                .defaultSuccessUrl("/protected-endpoint", true)
+            .anyRequest().permitAll()
             )
             .httpBasic(Customizer.withDefaults());
 

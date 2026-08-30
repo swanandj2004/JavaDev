@@ -1,8 +1,16 @@
 package com.example.Spring_Security;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
+@Service
 public class UserServiceImpl implements UserService {
     UserRepository userRepo;
     RoleRepository roleRepo;
+
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepo = userRepository;
+        this.roleRepo = roleRepository;
+    }
 
     public User getUser(String username) {
         return userRepo.findByUsername(username);
