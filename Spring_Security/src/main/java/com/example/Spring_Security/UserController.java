@@ -1,7 +1,5 @@
 package com.example.Spring_Security;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,60 +18,74 @@ import java.util.List;
 public class UserController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     public boolean userExists(String username, String email) {
         return userRepository.findByUsername(username) != null ||
             userRepository.findByEmail(email) != null;
     }
 
-    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.userRepository=userRepository;
         this.passwordEncoder=passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     @GetMapping("/get/allusers")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public List<User> getAllUsers() {
         List<User> users = userRepository.findAll();
-        return ResponseEntity.ok(users);
+        return users;
     }
 
     @GetMapping("/get/user/{username}")
-    public ResponseEntity<User> getUserDetails(@PathVariable String username) {
+    public User getUserDetails(@PathVariable String username) {
         User user = userRepository.findByUsername(username);
 
         if(user == null) {
-            return ResponseEntity.notFound().build();
+            return null;
         }
 
-        return ResponseEntity.ok(user);
+        return user;
+    }
+
+    @PostMapping("/create/role")
+    public String createNewRole(@RequestBody Role role) {
+        //TODO: process POST request
+        roleRepository.save(role);
+        
+        return "New Role Created Successfully!";
     }
     
     
-    @PostMapping("/create")
-    public ResponseEntity<?> postMethodName(@RequestBody User user) {
+    @PostMapping("/create/user")
+    public String createNewUser(@RequestBody User user) {
         if (user.getPassword() == null || user.getPassword().isBlank()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password cannot be empty");
+            return "Password Can't Stay Empty. Enter your Password Please";
         }
         if (userRepository.findByUsername(user.getUsername()) != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
+            return "User Already Exists. Try Again";
         }
         if (userRepository.existsByEmail(user.getEmail())) { 
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email Already Exists"); 
+            return "Email Already Exists. Try Again"; 
         }
 
+        Role role = roleRepository .findByName("USER");
+        if(role!=null) {
+            user.setRole(role);
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User Created Successfully");
+        return "New User Created Successfully!";
     }
     
 
     @PutMapping("/update/{username}")
-    public ResponseEntity<User> updateUserDetails(@PathVariable String username,@RequestBody User user) {
+    public User updateUserDetails(@PathVariable String username,@RequestBody User user) {
 
         User existingUser = userRepository.findByUsername(username);
 
         if(existingUser == null) {
-            return ResponseEntity.notFound().build();
+            return null;
         }
 
         existingUser.setUsername(user.getUsername());
@@ -84,7 +96,7 @@ public class UserController {
 
         userRepository.save(existingUser);
 
-        return ResponseEntity.ok(existingUser);
+        return existingUser;
     }
 
 }
